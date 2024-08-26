@@ -3,98 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Participantes</title>
+    <title>Gerenciamento de Participantes e Lista de Presença</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
             padding: 20px;
+            margin-bottom: 3cm;
         }
-        h1 {
+        .background-image,
+        .footer-content {
+            opacity: 0;
+        }
+        .background-image {
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center bottom;
+            background-size: cover;
+            height: 3cm;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .social-icons {
+            font-size: 20px;
+            margin: 0 10px;
             color: #333;
         }
-        form {
+        .linkedin-icon {
+            width: 56px;
+            height: 14px;
+            font-weight: bold;
+            color: #fff;
+            background: black;
+        }
+        .github-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .copyright {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        .digital-signature {
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .digital-signature.checked::before {
+            content: "✓";
+            color: green;
+        }
+        #rubricaCanvas {
+            border: 1px solid #ccc;
+        }
+        #header-image {
+            width: 100%;
+            max-width: 600px;
             margin-bottom: 20px;
         }
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
-            width: 100%;
-            max-width: 400px;
+        .custom-border {
+            border-color: #206030;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .lista-presenca-header th {
+            font-family: 'Arial Narrow', sans-serif;
+            font-size: 14px;
+            color: #ffffff;
+            background-color: #00B0F0;
+            border-radius: 4px;
+            overflow: hidden;
         }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
+        .page-version {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            color: #000000;
+            font-size: 6px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
         }
-        .json-output {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            background-color: #eaeaea;
-            padding: 10px;
-            border-radius: 5px;
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
+        .separator {
+            padding: 0 15px;
+            font-weight: bold;
+        }
+        .table-responsive {
+            max-height: auto;
+            max-width: 1200px;
+            overflow: hidden;
+            display: block;
+            font-size: 10.5px;
+        }
+        
     </style>
 </head>
 <body>
-    <h1>Gerenciamento de Participantes</h1>
-    <form id="participanteForm">
-        <input type="hidden" id="participanteId">
-        <input type="text" id="reCpf" placeholder="CPF" required>
-        <input type="text" id="nome" placeholder="Nome" required>
-        <input type="text" id="setorProcesso" placeholder="Setor/Processo">
-        <input type="text" id="rubrica" placeholder="Rubrica">
-        <label>
-            Assinatura Válida:
-            <input type="checkbox" id="assinaturaValida">
-        </label>
-        <button type="button" onclick="salvarParticipante()">Salvar Participante</button>
-    </form>
+    <div class="page-version">
+        <strong>Versão do Site 1.0</strong>
+    </div>
+    <div class="background-image"></div>
 
-    <h2>Lista de Participantes</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>CPF</th>
-                <th>Nome</th>
-                <th>Setor/Processo</th>
-                <th>Rubrica</th>
-                <th>Assinatura Válida</th>
-                <th>Data/Hora Assinatura</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="listaParticipantes">
-            <!-- Participantes serão listados aqui -->
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center" style="background-color: #00B0F0; padding: 10px; height: 2.5em; border-radius: 8px;">
+            <img id="header-image" src="https://www.cromex.com.br/images/cromex.png" alt="Imagem" style="height: 2.2em; width: 3.5em; margin-right: 10px;">
+            <h1 class="mt-4 mb-4 text-center" style="color: #FFFFFF; font-family: 'Arial Narrow', sans-serif; font-size: 28px; flex: 1; font-weight: bold;">
+                Lista de Presença de Treinamento
+            </h1>
+        </div>
 
-    <h2>JSON dos Participantes</h2>
-    <pre class="json-output" id="jsonOutput"></pre>
+        <form id="participanteForm">
+            <input type="hidden" id="participanteId">
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <!-- Grupo de Tipo de Evento -->
+                    <div>
+                        <label>Tipo de Evento:</label>
+                        <input type="checkbox" id="eventoInterno" value="Interno" onchange="saveToLocalStorage('eventoInterno')">
+                        <label for="eventoInterno">Evento Interno</label>
+                        <input type="checkbox" id="eventoExterno" value="Externo" onchange="saveToLocalStorage('eventoExterno')">
+                        <label for="eventoExterno">Evento Externo</label>
+                    </div>
+                    
+                    <!-- Separador -->
+                    <div class="separator">|</div>
+                    
+                    <!-- Grupo de Localização -->
+                    <div>
+                        <label>Localização:</label>
+                        <input type="checkbox" id="localSP" name="local" value="SP" onchange="saveToLocalStorage('localSP')">
+                        <label for="localSP">SP</label>
+                        <input type="checkbox" id="localBA" name="local" value="BA" onchange="saveToLocalStorage('localBA')">
+                        <label for="localBA">BA</label>
+                        <input type="checkbox" id="localOnline" name="local" value="Online" onchange="saveToLocalStorage('localOnline')">
+                        <label for="localOnline">Online</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nomeTreinamento">Nome Treinamento</label>
+                <input type="text" class="form-control" id="nomeTreinamento" placeholder="Nome Treinamento" onblur="saveToLocalStorage('nomeTreinamento')">
+            </div>
+            <div class="form-group">
+                <label for="nomeInstrutor">Nome Instrutor</label>
+                <input type="text" class="form-control" id="nomeInstrutor" placeholder="Nome Instrutor" onblur="saveToLocalStorage('nomeInstrutor')">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="dataTreinamento">Data Treinamento</label>
+                    <input type="date" class="form-control" id="dataTreinamento" onblur="saveToLocalStorage('dataTreinamento')">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="cargaHoraria">Carga Horária</label>
+                    <input type="text" class="form-control" id="cargaHoraria" placeholder="Carga Horária" onblur="saveToLocalStorage('cargaHoraria')">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reCpf">RE/CPF</label>
+                <input type="text" class="form-control" id="reCpf" placeholder="RE/CPF" required onblur="saveToLocalStorage('reCpf')">
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" class="form-control" id="nome" placeholder="Nome" required onblur="saveToLocalStorage('nome')">
+            </div>
+            <div class="form-group">
+                <label for="setorProcesso">Setor/Processo</label>
+                <input type="text" class="form-control" id="setorProcesso" placeholder="Setor/Processo" onblur="saveToLocalStorage('setorProcesso')">
+            </div>
+            <div class="form-group">
+                <label for="rubrica">Rubrica</label>
+                <input type="text" class="form-control" id="rubrica" placeholder="Rubrica" onblur="saveToLocalStorage('rubrica')">
+            </div>
+            <div class="form-group">
+                <label for="assinaturaValida">Confirma Assinatura:</label>
+                <input type="checkbox" id="assinaturaValida" onchange="saveToLocalStorage('assinaturaValida')">
+            </div>
+            
+            <div class="form-group">
+                <label for="dataHoraAssinatura">Data e Hora da Assinatura</label>
+                <input type="datetime-local" class="form-control" id="dataHoraAssinatura" required onblur="saveToLocalStorage('dataHoraAssinatura')">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="salvarParticipante()">Salvar Participante</button>
+        </form>
+
+        <h2>Lista de Participantes</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Linha</th>
+                        <th scope="col">Evento Interno</th>
+                        <th scope="col">Evento Externo</th>
+                        <th scope="col">Nome Treinamento</th>
+                        <th scope="col">Nome Instrutor</th>
+                        <th scope="col">Data Treinamento</th>
+                        <th scope="col">Carga Horária</th>
+                        <th scope="col">Local</th>
+                        <th scope="col">RE/CPF</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Setor/Processo</th>
+                        <th scope="col">Rubrica</th>
+                        <th scope="col">Assinatura</th>
+                        <th scope="col">Data e Hora da Assinatura</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="listaParticipantes">
+                    <!-- Participantes serão listados aqui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts de funcionalidades -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+    <script src="https://unpkg.com/signature_pad"></script>
 
     <script>
+        function saveToLocalStorage(id) {
+            const element = document.getElementById(id);
+            if (element.type === 'checkbox') {
+                localStorage.setItem(id, element.checked);
+            } else {
+                localStorage.setItem(id, element.value);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const elements = ['eventoInterno', 'eventoExterno', 'localSP', 'localBA', 'localOnline', 'nomeTreinamento', 'nomeInstrutor', 'dataTreinamento', 'cargaHoraria', 'reCpf', 'nome', 'setorProcesso', 'rubrica', 'assinaturaValida', 'dataHoraAssinatura'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = localStorage.getItem(id) === 'true';
+                    } else {
+                        element.value = localStorage.getItem(id) || '';
+                    }
+                }
+            });
+        }
+
+        // Carregar dados do local storage quando a página for carregada
+        window.onload = function() {
+            loadFromLocalStorage();
+            listarParticipantes();  // Manter a chamada para carregar a lista de participantes
+        };
+
         function salvarParticipante() {
             const id = document.getElementById('participanteId').value;
+            const eventoInterno = document.getElementById('eventoInterno').checked ? 'Interno' : '';
+            const eventoExterno = document.getElementById('eventoExterno').checked ? 'Externo' : '';
+            const nomeTreinamento = document.getElementById('nomeTreinamento').value;
+            const nomeInstrutor = document.getElementById('nomeInstrutor').value;
+            const dataTreinamento = document.getElementById('dataTreinamento').value;
+            const cargaHoraria = document.getElementById('cargaHoraria').value;
+            
+            const local = document.querySelector('input[name="local"]:checked') ? document.querySelector('input[name="local"]:checked').value : '';
+
             const reCpf = document.getElementById('reCpf').value;
             const nome = document.getElementById('nome').value;
             const setorProcesso = document.getElementById('setorProcesso').value;
             const rubrica = document.getElementById('rubrica').value;
             const assinaturaValida = document.getElementById('assinaturaValida').checked;
+            const dataHoraAssinatura = document.getElementById('dataHoraAssinatura').value;
+
             const participante = {
+                eventoInterno: eventoInterno,
+                eventoExterno: eventoExterno,
+                nomeTreinamento: nomeTreinamento,
+                nomeInstrutor: nomeInstrutor,
+                dataTreinamento: dataTreinamento,
+                cargaHoraria: cargaHoraria,
+                local: local,
                 reCpf: reCpf,
                 nome: nome,
                 setorProcesso: setorProcesso,
                 rubrica: rubrica,
-                assinaturaValida: assinaturaValida
+                assinaturaValida: assinaturaValida,
+                dataHoraAssinatura: dataHoraAssinatura
             };
-
+    
             if (id) {
                 fetch(`http://localhost:8080/api/participantes/${id}`, {
                     method: 'PUT',
@@ -113,7 +314,7 @@
                     alert(`Participante ID ${id} atualizado com sucesso.`);
                     listarParticipantes();
                     document.getElementById('participanteForm').reset();
-                    document.getElementById('participanteId').value = ''; // Limpa o campo de ID
+                    document.getElementById('participanteId').value = '';
                 })
                 .catch(error => {
                     console.error('Erro ao editar o participante:', error);
@@ -160,17 +361,24 @@
             })
             .then(data => {
                 const lista = document.getElementById('listaParticipantes');
-                const jsonOutput = document.getElementById('jsonOutput');
-                lista.innerHTML = ''; // Limpa a lista atual
+                lista.innerHTML = '';
+                let linha = 1;
                 data.forEach(participante => {
                     lista.innerHTML += `
                         <tr>
-                            <td>${participante.id}</td>
-                            <td>${participante.reCpf}</td>
-                            <td>${participante.nome}</td>
-                            <td>${participante.setorProcesso}</td>
-                            <td>${participante.rubrica}</td>
-                            <td>${participante.assinaturaValida ? 'Sim' : 'Não'}</td>
+                            <td>${linha++}</td>
+                            <td>${participante.eventoInterno || ''}</td>
+                            <td>${participante.eventoExterno || ''}</td>
+                            <td>${participante.nomeTreinamento || ''}</td>
+                            <td>${participante.nomeInstrutor || ''}</td>
+                            <td>${participante.dataTreinamento || ''}</td>
+                            <td>${participante.cargaHoraria || ''}</td>
+                            <td>${participante.local || ''}</td>
+                            <td>${participante.reCpf || ''}</td>
+                            <td>${participante.nome || ''}</td>
+                            <td>${participante.setorProcesso || ''}</td>
+                            <td>${participante.rubrica || ''}</td>
+                            <td>${participante.assinaturaValida ? 'Sim' : 'Sim'}</td>
                             <td>${participante.dataHoraAssinatura || ''}</td>
                             <td>
                                 <button onclick="prepararEdicao(${participante.id})">Editar</button>
@@ -178,7 +386,6 @@
                             </td>
                         </tr>`;
                 });
-                jsonOutput.textContent = JSON.stringify(data, null, 2); // Atualiza a área de texto com o JSON formatado
             })
             .catch(error => {
                 console.error('Erro ao listar os participantes:', error);
@@ -200,12 +407,53 @@
                 return response.json();
             })
             .then(participante => {
-                document.getElementById('participanteId').value = participante.id;
-                document.getElementById('reCpf').value = participante.reCpf;
-                document.getElementById('nome').value = participante.nome;
-                document.getElementById('setorProcesso').value = participante.setorProcesso;
-                document.getElementById('rubrica').value = participante.rubrica;
-                document.getElementById('assinaturaValida').checked = participante.assinaturaValida;
+                if (document.getElementById('participanteId')) {
+                    document.getElementById('participanteId').value = participante.id;
+                }
+                if (document.getElementById('eventoInterno')) {
+                    document.getElementById('eventoInterno').checked = participante.eventoInterno === 'Interno';
+                }
+                if (document.getElementById('eventoExterno')) {
+                    document.getElementById('eventoExterno').checked = participante.eventoExterno === 'Externo';
+                }
+                if (document.getElementById('nomeTreinamento')) {
+                    document.getElementById('nomeTreinamento').value = participante.nomeTreinamento || '';
+                }
+                if (document.getElementById('nomeInstrutor')) {
+                    document.getElementById('nomeInstrutor').value = participante.nomeInstrutor || '';
+                }
+                if (document.getElementById('dataTreinamento')) {
+                    document.getElementById('dataTreinamento').value = participante.dataTreinamento || '';
+                }
+                if (document.getElementById('cargaHoraria')) {
+                    document.getElementById('cargaHoraria').value = participante.cargaHoraria || '';
+                }
+                if (document.getElementById('reCpf')) {
+                    document.getElementById('reCpf').value = participante.reCpf || '';
+                }
+                if (document.getElementById('nome')) {
+                    document.getElementById('nome').value = participante.nome || '';
+                }
+                if (document.getElementById('setorProcesso')) {
+                    document.getElementById('setorProcesso').value = participante.setorProcesso || '';
+                }
+                if (document.getElementById('rubrica')) {
+                    document.getElementById('rubrica').value = participante.rubrica || '';
+                }
+                if (document.getElementById('assinaturaValida')) {
+                    document.getElementById('assinaturaValida').checked = participante.assinaturaValida || false;
+                }
+                if (document.getElementById('dataHoraAssinatura')) {
+                    document.getElementById('dataHoraAssinatura').value = participante.dataHoraAssinatura || '';
+                }
+
+                if (participante.local === 'SP') {
+                    document.getElementById('localSP').checked = true;
+                } else if (participante.local === 'BA') {
+                    document.getElementById('localBA').checked = true;
+                } else if (participante.local === 'Online') {
+                    document.getElementById('localOnline').checked = true;
+                }
             })
             .catch(error => {
                 console.error('Erro ao obter os dados do participante:', error);
@@ -233,10 +481,37 @@
                     alert(`Erro ao excluir o participante: ${error.message}`);
                 });
             }
+
+            function saveToLocalStorage(id) {
+                const element = document.getElementById(id);
+                if (element.type === 'checkbox') {
+                    localStorage.setItem(id, element.checked); // Armazena o estado do checkbox
+                } else {
+                    localStorage.setItem(id, element.value);
+                }
+            }
+            function loadFromLocalStorage() {
+                const elements = ['assinaturaValida']; // Lista de elementos a serem carregados
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = localStorage.getItem(id) === 'true'; // Carrega o estado do checkbox
+                        } else {
+                            element.value = localStorage.getItem(id) || '';
+                        }
+                    }
+                });
+            }
+
+            // Carregar dados do localStorage quando a página for carregada
+            window.onload = function() {
+                loadFromLocalStorage();
+                listarParticipantes();  // Manter a chamada para carregar a lista de participantes
+            };
         }
 
-        // Chama listarParticipantes ao carregar a página para exibir todos os participantes
-        window.onload = listarParticipantes;
+ 
     </script>
 </body>
 </html>

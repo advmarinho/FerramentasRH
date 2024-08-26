@@ -33,6 +33,13 @@ public class ParticipanteService {
                     participante.setRubrica(participanteAtualizado.getRubrica());
                     participante.setAssinaturaValida(participanteAtualizado.isAssinaturaValida());
                     participante.setDataHoraAssinatura(participanteAtualizado.getDataHoraAssinatura());
+                    participante.setEventoInterno(participanteAtualizado.getEventoInterno());
+                    participante.setEventoExterno(participanteAtualizado.getEventoExterno());
+                    participante.setNomeTreinamento(participanteAtualizado.getNomeTreinamento());
+                    participante.setNomeInstrutor(participanteAtualizado.getNomeInstrutor());
+                    participante.setDataTreinamento(participanteAtualizado.getDataTreinamento());
+                    participante.setCargaHoraria(participanteAtualizado.getCargaHoraria());
+                    participante.setLocal(participanteAtualizado.getLocal());
                     return participanteRepository.save(participante);
                 })
                 .orElseThrow(() -> new RuntimeException("Participante não encontrado com o ID: " + id));

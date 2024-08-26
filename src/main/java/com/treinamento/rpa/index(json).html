@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Participantes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .json-output {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #eaeaea;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerenciamento de Participantes</h1>
+    <form id="participanteForm">
+        <input type="hidden" id="participanteId">
+        <input type="text" id="eventoInterno" placeholder="Evento Interno">
+        <input type="text" id="eventoExterno" placeholder="Evento Externo">
+        <input type="text" id="nomeTreinamento" placeholder="Nome Treinamento">
+        <input type="text" id="nomeInstrutor" placeholder="Nome Instrutor">
+        <input type="date" id="dataTreinamento" placeholder="Data Treinamento">
+        <input type="text" id="cargaHoraria" placeholder="Carga Horária">
+        <input type="text" id="local" placeholder="Local">
+        <input type="text" id="reCpf" placeholder="CPF" required>
+        <input type="text" id="nome" placeholder="Nome" required>
+        <input type="text" id="setorProcesso" placeholder="Setor/Processo">
+        <input type="text" id="rubrica" placeholder="Rubrica">
+        <label>
+            Assinatura Válida:
+            <input type="checkbox" id="assinaturaValida">
+        </label>
+        <input type="datetime-local" id="dataHoraAssinatura" required>
+        <button type="button" onclick="salvarParticipante()">Salvar Participante</button>
+    </form>
+
+    <h2>Lista de Participantes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Linha</th>
+                <th scope="col">Evento Interno</th>
+                <th scope="col">Evento Externo</th>
+                <th scope="col">Nome Treinamento</th>
+                <th scope="col">Nome Instrutor</th>
+                <th scope="col">Data Treinamento</th>
+                <th scope="col">Carga Horária</th>
+                <th scope="col">Local</th>
+                <th scope="col">RE/CPF</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Setor/Processo</th>
+                <th scope="col">Rubrica</th>
+                <th scope="col">Assinatura</th>
+                <th scope="col">Confirmo Assinatura Digital</th>
+                <th scope="col">Data e Hora da Assinatura</th>
+                <th scope="col">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaParticipantes">
+            <!-- Participantes serão listados aqui -->
+        </tbody>
+    </table>
+
+    <h2>JSON dos Participantes</h2>
+    <pre class="json-output" id="jsonOutput"></pre>
+
+    <script>
+        function salvarParticipante() {
+            const id = document.getElementById('participanteId').value;
+            const eventoInterno = document.getElementById('eventoInterno').value;
+            const eventoExterno = document.getElementById('eventoExterno').value;
+            const nomeTreinamento = document.getElementById('nomeTreinamento').value;
+            const nomeInstrutor = document.getElementById('nomeInstrutor').value;
+            const dataTreinamento = document.getElementById('dataTreinamento').value;
+            const cargaHoraria = document.getElementById('cargaHoraria').value;
+            const local = document.getElementById('local').value;
+            const reCpf = document.getElementById('reCpf').value;
+            const nome = document.getElementById('nome').value;
+            const setorProcesso = document.getElementById('setorProcesso').value;
+            const rubrica = document.getElementById('rubrica').value;
+            const assinaturaValida = document.getElementById('assinaturaValida').checked;
+            const dataHoraAssinatura = document.getElementById('dataHoraAssinatura').value;
+
+            const participante = {
+                eventoInterno: eventoInterno,
+                eventoExterno: eventoExterno,
+                nomeTreinamento: nomeTreinamento,
+                nomeInstrutor: nomeInstrutor,
+                dataTreinamento: dataTreinamento,
+                cargaHoraria: cargaHoraria,
+                local: local,
+                reCpf: reCpf,
+                nome: nome,
+                setorProcesso: setorProcesso,
+                rubrica: rubrica,
+                assinaturaValida: assinaturaValida,
+                dataHoraAssinatura: dataHoraAssinatura
+            };
+
+            if (id) {
+                fetch(`http://localhost:8080/api/participantes/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(participante)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(`Participante ID ${id} atualizado com sucesso.`);
+                    listarParticipantes();
+                    document.getElementById('participanteForm').reset();
+                    document.getElementById('participanteId').value = '';
+                })
+                .catch(error => {
+                    console.error('Erro ao editar o participante:', error);
+                    alert(`Erro ao editar o participante: ${error.message}`);
+                });
+            } else {
+                fetch('http://localhost:8080/api/participantes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(participante)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(`Participante criado com sucesso: ID ${data.id}`);
+                    listarParticipantes();
+                    document.getElementById('participanteForm').reset();
+                })
+                .catch(error => {
+                    console.error('Erro ao criar o participante:', error);
+                    alert(`Erro ao criar o participante: ${error.message}`);
+                });
+            }
+        }
+
+        function listarParticipantes() {
+            fetch('http://localhost:8080/api/participantes', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const lista = document.getElementById('listaParticipantes');
+                const jsonOutput = document.getElementById('jsonOutput');
+                lista.innerHTML = '';
+                let linha = 1;
+                data.forEach(participante => {
+                    lista.innerHTML += `
+                        <tr>
+                            <td>${linha++}</td>
+                            <td>${participante.eventoInterno || ''}</td>
+                            <td>${participante.eventoExterno || ''}</td>
+                            <td>${participante.nomeTreinamento || ''}</td>
+                            <td>${participante.nomeInstrutor || ''}</td>
+                            <td>${participante.dataTreinamento || ''}</td>
+                            <td>${participante.cargaHoraria || ''}</td>
+                            <td>${participante.local || ''}</td>
+                            <td>${participante.reCpf || ''}</td>
+                            <td>${participante.nome || ''}</td>
+                            <td>${participante.setorProcesso || ''}</td>
+                            <td>${participante.rubrica || ''}</td>
+                            <td>${participante.assinaturaValida ? 'Sim' : 'Não'}</td>
+                            <td>${participante.dataHoraAssinatura || ''}</td>
+                            <td>
+                                <button onclick="prepararEdicao(${participante.id})">Editar</button>
+                                <button onclick="excluirParticipante(${participante.id})">Excluir</button>
+                            </td>
+                        </tr>`;
+                });
+                jsonOutput.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('Erro ao listar os participantes:', error);
+                alert(`Erro ao listar os participantes: ${error.message}`);
+            });
+        }
+
+        function prepararEdicao(id) {
+            fetch(`http://localhost:8080/api/participantes/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(participante => {
+                document.getElementById('participanteId').value = participante.id;
+                document.getElementById('eventoInterno').value = participante.eventoInterno || '';
+                document.getElementById('eventoExterno').value = participante.eventoExterno || '';
+                document.getElementById('nomeTreinamento').value = participante.nomeTreinamento || '';
+                document.getElementById('nomeInstrutor').value = participante.nomeInstrutor || '';
+                document.getElementById('dataTreinamento').value = participante.dataTreinamento || '';
+                document.getElementById('cargaHoraria').value = participante.cargaHoraria || '';
+                document.getElementById('local').value = participante.local || '';
+                document.getElementById('reCpf').value = participante.reCpf;
+                document.getElementById('nome').value = participante.nome;
+                document.getElementById('setorProcesso').value = participante.setorProcesso || '';
+                document.getElementById('rubrica').value = participante.rubrica || '';
+                document.getElementById('assinaturaValida').checked = participante.assinaturaValida;
+                document.getElementById('dataHoraAssinatura').value = participante.dataHoraAssinatura || '';
+            })
+            .catch(error => {
+                console.error('Erro ao obter os dados do participante:', error);
+                alert(`Erro ao obter os dados do participante: ${error.message}`);
+            });
+        }
+
+        function excluirParticipante(id) {
+            if (confirm("Tem certeza que deseja excluir este participante?")) {
+                fetch(`http://localhost:8080/api/participantes/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
+                    }
+                    alert(`Participante ID ${id} excluído com sucesso.`);
+                    listarParticipantes();
+                })
+                .catch(error => {
+                    console.error('Erro ao excluir o participante:', error);
+                    alert(`Erro ao excluir o participante: ${error.message}`);
+                });
+            }
+        }
+
+        window.onload = listarParticipantes;
+    </script>
+</body>
+</html>

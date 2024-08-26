@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Presença</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            margin-bottom: 3cm;
+            /* overflow: hidden; */
+        }
+        
+        .background-image,
+        .footer-content {
+            opacity: 0;
+            /* Inicialmente oculto */
+            /* transition: opacity 0.3s ease; */
+        }
+        
+        .background-image {
+            /* background-image: url('https://www.cromex.com.br/images/topos/sobre-nos.jpg'); */
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center bottom;
+            background-size: cover;
+            height: 3cm;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 0;
+        }
+        /* .footer-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: right;
+            padding: 2px;
+            z-index: 1;
+            font-size: 10px;
+        } */
+        
+        .social-icons {
+            font-size: 20px;
+            /* Ajuste conforme necessário */
+            margin: 0 10px;
+            color: #333;
+        }
+        
+        .linkedin-icon {
+            width: 56px;
+            /* Ajuste conforme necessário */
+            height: 14px;
+            /* Ajuste conforme necessário */
+            font-weight: bold;
+            /* Torna o ícone em negrito */
+            color: #fff;
+            /* Cor do ícone */
+            background: black;
+            /* Cor de fundo do ícone */
+        }
+        
+        .github-icon {
+            width: 24px;
+            /* Ajuste conforme necessário */
+            height: 24px;
+            /* Ajuste conforme necessário */
+        }
+        
+        .copyright {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .digital-signature {
+            border: 1px solid #ccc;
+            padding: 5px;
+            cursor: pointer;
+        }
+        
+        .digital-signature.checked::before {
+            content: "✓";
+            color: green;
+        }
+        
+        #rubricaCanvas {
+            border: 1px solid #ccc;
+        }
+        
+        #header-image {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        
+        .custom-border {
+            border-color: #206030;
+        }
+        
+        .lista-presenca-header th {
+            font-family: 'Arial Narrow', sans-serif;
+            font-size: 14px;
+            color: #ffffff;
+            background-color: #00B0F0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .page-version {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            color: #000000;
+            font-size: 6px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        function desativarCampoAoPerderFoco(input) {
+            input.setAttribute('readonly', 'true');
+        }
+    </script>
+
+    <div class="page-version">
+        <strong>Versão do Site 1.0</strong>
+    </div>
+
+    <div class="background-image"></div>
+
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center" style="background-color: #00B0F0; padding: 10px; height: 2.5em; border-radius: 8px;">
+            <img id="header-image" src="https://www.cromex.com.br/images/cromex.png" alt="Imagem" style="height: 2.2em; width: 3.5em; margin-right: 10px;">
+            <h1 class="mt-4 mb-4 text-center" style="color: #FFFFFF; font-family: 'Arial Narrow', sans-serif; font-size: 28px; flex: 1; font-weight: bold;">
+                Lista de Presença</h1>
+        </div>
+
+        <div class="form-group mb-2">
+            <br>
+            <input type="checkbox" id="eventoInterno" class="mr-2" onchange="desativarCheckbox(this)">
+            <label for="eventoInterno">Evento Interno:</label>
+
+            <input type="checkbox" id="eventoExterno" class="mr-2" onchange="desativarCheckbox(this)">
+            <label for="eventoExterno">Evento Externo:</label>
+        </div>
+
+        <div class="form-group">
+            <label for="treinamento">Treinamento:</label>
+            <!-- <input type="text" class="form-control" id="treinamento" onkeydown="desativarCampoAoPressionarEnter(this)"> -->
+            <input type="text" class="form-control" id="treinamento" onblur="desativarCampoAoPerderFoco(this)">
+        </div>
+
+        <div class="form-group">
+            <label for="instrutor">Instrutor:</label>
+            <!-- <input type="text" class="form-control" id="instrutor" onkeydown="desativarCampoAoPressionarEnter(this)"> -->
+            <input type="text" class="form-control" id="instrutor" onblur="desativarCampoAoPerderFoco(this)">
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+
+
+                <div class="col-md-6">
+                    <label for="data">Data:</label>
+                    <input type="date" class="form-control" id="data" onblur="desativarCampoAoPerderFoco(this)">
+                </div>
+
+
+
+                <div class="col-md-6">
+                    <label for="cargaHoraria">Carga Horária:</label>
+                    <!-- <input type="text" class="form-control" id="cargaHoraria"onkeydown="desativarCampoAoPressionarEnter(this)"> -->
+                    <input type="text" class="form-control" id="cargaHoraria" onblur="desativarCampoAoPerderFoco(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input type="checkbox" id="spCheckbox" class="mr-2" onchange="desativarCheckbox(this)">
+            <label for="spCheckbox">SP:</label>
+
+            <input type="checkbox" id="baCheckbox" class="mr-2" onchange="desativarCheckbox(this)">
+            <label for="baCheckbox">BA:</label>
+
+            <input type="checkbox" id="onlineCheckbox" onchange="desativarCheckbox(this)">
+            <label for="onlineCheckbox">Online:</label>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="lista-presenca-header">
+                    <tr>
+                        <th scope="col">Linha</th>
+                        <th scope="col">RE/CPF</th>
+                        <th scope="col">Nome do Participante</th>
+                        <th scope="col">Setor/Processo</th>
+                        <th scope="col">Assinatura</th>
+                        <th scope="col">Confirmo Assinatura Digital</th>
+                        <th scope="col">Data e Hora da Assinatura</th>
+                        <!-- Adicionando a coluna de data e hora da assinatura -->
+                    </tr>
+                </thead>
+
+                <tbody id="lista-presenca-body">
+                    <!-- Conteúdo da lista de presença será adicionado aqui -->
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#adicionarModal" style="background-color: #00B0F0;">
+                Adicionar Participante
+            </button>
+
+            <button type="button" class="btn btn-success custom-border" id="salvarPDF">
+                Salvar em PDF
+            </button>
+
+            <button type="button" class="btn custom-border" id="salvarTXT" style="background-color: orange;">
+                Salvar em TXT
+            </button>
+
+
+        </div>
+
+        <!-- Modal de Adição de Participante -->
+        <div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="adicionarModalLabel">Adicionar Participante</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formAdicionar">
+                            <div class="form-group">
+                                <label for="cpf">RE/CPF:</label>
+                                <input type="text" class="form-control" id="cpf" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nome">Nome do Participante:</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="setorProcesso">Setor/Processo:</label>
+                                <input type="text" class="form-control" id="setorProcesso" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rubrica">Rubrica:</label>
+                                <canvas id="rubricaCanvas" width="350" height="150" required></canvas>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assinaturaValida">Confirmo Assinatura Digital, conforme MP 2.200-2/01,
+                                    Art.10º§2º</label>
+                                <select class="form-control" id="assinaturaValida" required>
+                                    <option value="true">Sim</option>
+                                </select>
+                                <br>
+                                <button type="submit" class="btn btn-primary" onclick="return verificarRubrica()">Adicionar</button>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+            <script src="https://unpkg.com/signature_pad"></script>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    let formularioEnviado = false;
+                    let idCounter = 1;
+                    const participantes = [];
+
+                    const formAdicionar = document.getElementById('formAdicionar');
+                    const listaPresencaBody = document.getElementById('lista-presenca-body');
+                    const salvarPDFButton = document.getElementById('salvarPDF');
+                    const rubricaCanvas = new SignaturePad(document.getElementById('rubricaCanvas'));
+
+                    formAdicionar.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        adicionarParticipante();
+                        formAdicionar.reset();
+                        rubricaCanvas.clear();
+                        $('#adicionarModal').modal('hide');
+                    });
+
+                    salvarPDFButton.addEventListener('click', function() {
+                        salvarPDF();
+                    });
+
+                    const camposBloqueados = ['treinamento', 'instrutor', 'data', 'cargaHoraria', 'spCheckbox', 'baCheckbox', 'onlineCheckbox'];
+
+                    camposBloqueados.forEach(function(campo) {
+                        const campoElement = document.getElementById(campo);
+                        if (campoElement) {
+                            campoElement.addEventListener('input', function() {
+                                if (formularioEnviado) {
+                                    campoElement.disabled = true;
+                                }
+                            });
+                        }
+                    });
+
+                    // Adicionando funcionalidade de fechar o modal ao pressionar "Enter" nos campos do formulário
+                    formAdicionar.addEventListener('keydown', function(event) {
+                        if (event.key === "Enter") {
+                            var form = document.getElementById("formAdicionar");
+
+                            // Verifica a validade de todos os campos do formulário
+                            if (form.checkValidity()) {
+                                $('#adicionarModal').modal('unhide');
+                            }
+                        }
+                    });
+
+
+                    function fecharCampoData() {
+                        var campoData = document.getElementById("data");
+                        campoData.setAttribute("readonly", "readonly");
+                    }
+
+
+
+
+
+
+
+
+                    function adicionarParticipante() {
+                        const reCpf = document.getElementById('cpf').value;
+                        const nome = document.getElementById('nome').value;
+                        const setorProcesso = document.getElementById('setorProcesso').value;
+                        const rubrica = rubricaCanvas.toDataURL();
+                        const assinaturaValida = document.getElementById('assinaturaValida').value === "true";
+
+                        const participante = {
+                            id: idCounter,
+                            reCpf,
+                            nome,
+                            setorProcesso,
+                            rubrica,
+                            assinaturaValida,
+                            dataHoraAssinatura: new Date().toLocaleString() // Adicionando a data e hora da assinatura
+                        };
+                        participantes.push(participante);
+
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                        <td>${participante.id}</td>
+                        <td>${participante.reCpf}</td>
+                        <td>${participante.nome}</td>
+                        <td>${participante.setorProcesso}</td>
+                        <td><img src="${participante.rubrica}" width="100" height="50" alt="Rubrica"></td>
+                        <td>${participante.assinaturaValida ? 'Sim' : 'Não'}</td>
+                        <td>${participante.dataHoraAssinatura.replace(/,/g, ' | ')}</td>
+                    `;
+
+                        listaPresencaBody.appendChild(newRow);
+
+                        idCounter++;
+                    }
+
+                    function salvarPDF() {
+                        //const footerContent = document.querySelector('.footer-content');
+                        //const originalFooterContent = footerContent.innerHTML;
+                        //footerContent.innerHTML = '';
+                        const pdfOptions = {
+                            margin: 0.5, // margem mínima de 0.5 mm
+                            filename: 'lista_presenca.pdf',
+                            image: {
+                                type: 'jpeg',
+                                quality: 0.80
+                            }, // qualidade máxima
+                            html2canvas: {
+                                scale: 1.8,
+                                y: 0,
+                                scrollY: 0
+                            },
+                            jsPDF: {
+                                unit: 'mm',
+                                format: 'a4',
+                                orientation: 'portrait'
+                            }
+                        };
+
+                        // const footerContent = `<div style="font-size: 10px;">Trilha: ${window.location.pathname} | Data e Hora da Assinatura: ${new Date().toLocaleString()}</div>`;
+                        // pdfOptions.html2canvas = { scale: 1.8, y: 0, scrollY: 0 };
+
+                        const element = document.documentElement;
+                        element.style.overflow = 'hidden';
+
+
+                        // html2pdf(element, pdfOptions);
+                        html2pdf(element, pdfOptions).then(() => {
+                            footerContent.innerHTML = originalFooterContent;
+                        });
+                    }
+
+
+                });
+
+
+                function desativarCampoAoPressionarEnter(campo) {
+                    if (event.key === "Enter") {
+                        campo.disabled = true;
+                    }
+                }
+
+                function desativarCheckbox(checkbox) {
+                    checkbox.disabled = true;
+                }
+
+                function verificarRubrica() {
+                    const rubricaCanvas = document.getElementById('rubricaCanvas');
+                    const context = rubricaCanvas.getContext('2d');
+                    const imageData = context.getImageData(0, 0, rubricaCanvas.width, rubricaCanvas.height);
+
+                    // Verificar se a rubrica foi desenhada
+                    for (let i = 0; i < imageData.data.length; i += 4) {
+                        const alpha = imageData.data[i + 3]; // Valor de transparência do pixel
+
+                        if (alpha !== 0) {
+                            // Se o pixel não for totalmente transparente, consideramos a rubrica desenhada
+                            return true;
+                        }
+                    }
+
+                    // Se nenhum pixel foi colorido, a rubrica não foi desenhada
+                    alert('Por favor, desenhe a rubrica antes de enviar o formulário.');
+                    return false;
+                }
+
+                function limparRubrica() {
+                    const rubricaCanvas = document.getElementById('rubricaCanvas');
+                    const context = rubricaCanvas.getContext('2d');
+                    context.clearRect(0, 0, rubricaCanvas.width, rubricaCanvas.height);
+                }
+
+                function salvarTXT() {
+                    const dadosTXT = gerarDadosTXT();
+
+                    // Cria um blob com os dados em formato de texto
+                    const blob = new Blob([dadosTXT], {
+                        type: 'text/plain'
+                    });
+
+                    // Cria uma URL do blob
+                    const url = URL.createObjectURL(blob);
+
+                    // Cria um link para o download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'lista_presenca.txt';
+
+                    // Adiciona o link ao corpo da página e aciona o clique no link
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Remove o link do corpo da página
+                    document.body.removeChild(a);
+
+                    // Revoga a URL do blob para liberar recursos
+                    URL.revokeObjectURL(url);
+                }
+
+                function gerarDadosTXT() {
+                    // Aqui você pode criar uma string com os dados que deseja salvar em TXT
+                    let dadosTXT = 'Dados da Página:\n\n';
+
+                    // Adicione os dados específicos que deseja incluir, por exemplo:
+                    dadosTXT += `Evento Interno: ${document.getElementById('eventoInterno').checked ? 'sim' : 'não'}\n`;
+                    dadosTXT += `Evento Externo: ${document.getElementById('eventoExterno').checked ? 'sim' : 'não'}\n`;
+                    dadosTXT += `Treinamento: ${document.getElementById('treinamento').value}\n`;
+                    dadosTXT += `Instrutor: ${document.getElementById('instrutor').value}\n`;
+                    dadosTXT += `Data: ${document.getElementById('data').value}\n`;
+                    dadosTXT += `Carga Horária: ${document.getElementById('cargaHoraria').value}\n`;
+                    dadosTXT += `Treinamneto SP: ${document.getElementById('spCheckbox').checked ? 'sim' : 'não'}\n`;
+                    dadosTXT += `Treinamneto BA: ${document.getElementById('baCheckbox').checked ? 'sim' : 'não'}\n`;
+                    dadosTXT += `Treinamneto Online: ${document.getElementById('onlineCheckbox').checked ? 'sim' : 'não'}\n\n`;
+
+                    const linhasTabela = document.querySelectorAll('#lista-presenca-body tr');
+                    linhasTabela.forEach(function(linha) {
+                        dadosTXT += `Linha: ${linha.cells[0].innerText}\n`;
+                        dadosTXT += `RE/CPF: ${linha.cells[1].innerText}\n`;
+                        dadosTXT += `Nome do Participante: ${linha.cells[2].innerText}\n`;
+                        dadosTXT += `Setor/Processo: ${linha.cells[3].innerText}\n`;
+                        dadosTXT += `Figura da Assinatura: ${linha.cells[4].innerText.trim() ? 'Não' : 'Figura'}\n`;
+                        dadosTXT += `Confirmo Assinatura Digital: ${linha.cells[5].innerText}\n`;
+                        dadosTXT += `Data e Hora da Assinatura: ${linha.cells[6].innerText}\n\n`;
+                    });
+                    return dadosTXT;
+                }
+
+                document.getElementById('salvarTXT').addEventListener('click', function() {
+                    salvarTXT();
+                });
+            </script>
+        </div>
+
+</body>
+
+
+</html>
