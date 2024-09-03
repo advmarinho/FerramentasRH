@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caderno de Anotações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 800px; /* Largura ajustada para parecer uma folha grande */
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 1000px; /* Altura ajustada para parecer uma folha grande */
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 18px; /* Tamanho da fonte maior para parecer um caderno de anotações */
+            line-height: 2.5em; /* Espaçamento entre linhas maior para imitar linhas de caderno */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            background-image: linear-gradient(to bottom, transparent 95%, #e0e0e0 95%);
+            background-size: 100% 2.5em; /* Altura do espaçamento das linhas */
+            white-space: pre-wrap; /* Mantém os espaços e quebras de linha */
+            resize: none; /* Desativa o redimensionamento do textarea */
+            overflow-y: auto; /* Adiciona rolagem vertical se o conteúdo exceder a altura */
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Caderno de Anotações</h1>
+        <textarea id="noteArea" placeholder="Escreva suas anotações aqui..."></textarea>
+        <div class="buttons">
+            <button onclick="saveNote()">Salvar Anotação</button>
+            <button onclick="exportToJson()">Exportar para JSON</button>
+            <input type="file" id="fileInput" onchange="importFromJson(event)">
+            <button onclick="document.getElementById('fileInput').click()">Importar JSON</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            loadNote();
+        });
+
+        function saveNote() {
+            const noteContent = document.getElementById('noteArea').value;
+            localStorage.setItem('savedNote', noteContent);
+            alert('Anotação salva com sucesso!');
+        }
+
+        function loadNote() {
+            const savedNote = localStorage.getItem('savedNote');
+            if (savedNote) {
+                document.getElementById('noteArea').value = savedNote;
+            }
+        }
+
+        function exportToJson() {
+            const noteContent = document.getElementById('noteArea').value;
+            const data = { notes: noteContent };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notes.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromJson(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const data = JSON.parse(content);
+                document.getElementById('noteArea').value = data.notes;
+                saveNote(); // Save to localStorage
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
