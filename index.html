@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Protect Tool - Projeto</title>
+  <style>
+    /* Estilos globais */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    nav {
+      background-color: #003d66;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    header.hero-section {
+      background-color: #004080;
+      color: white;
+      text-align: center;
+      padding: 100px 20px;
+      margin-top: 50px;
+    }
+    header .cta-button {
+      background-color: #0056b3;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      display: inline-block;
+    }
+    header .cta-button:hover {
+      background-color: #003d66;
+    }
+    section {
+      padding: 60px 20px;
+      text-align: center;
+      background-color: white;
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #004080;
+      margin-bottom: 20px;
+    }
+    p {
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    ul li {
+      margin: 10px 0;
+    }
+    .btn {
+      background-color: #004080;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      background-color: #003d66;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 10px 0;
+      width: 80%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    footer {
+      background-color: #004080;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 40px;
+    }
+    footer a {
+      color: white;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    @media (min-width: 768px) {
+      section {
+        margin: 40px auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#sobre">Sobre</a>
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#download">Download</a>
+    <a href="#instalacao">Instalação</a>
+    <a href="#uso">Uso</a>
+    <a href="#novas-ferramentas">Novas Ferramentas</a>
+    <a href="#contato">Contato</a>
+  </nav>
+  
+  <header class="hero-section">
+    <h1>PDF Protect Tool</h1>
+    <p>Proteja seus PDFs de forma automática ou personalizada e gere rascunhos de e-mail no Outlook.</p>
+    <a href="#download" class="cta-button">Baixe Agora</a>
+  </header>
+  
+  <section id="sobre">
+    <h2>Sobre o Projeto</h2>
+    <p>O PDF Protect Tool é uma ferramenta desenvolvida para auxiliar profissionais de RH, DP e demais interessados na proteção de arquivos PDF. Com uma interface gráfica intuitiva, o sistema extrai o CPF contido no PDF e protege o documento utilizando o CPF como senha ou uma senha personalizada definida pelo usuário. Além disso, gera um rascunho de e-mail no Outlook com o PDF protegido anexado, facilitando a comunicação.</p>
+  </section>
+  
+  <section id="funcionalidades">
+    <h2>Funcionalidades</h2>
+    <ul>
+      <li><strong>Proteção Automática:</strong> Extrai o CPF do PDF e protege o arquivo utilizando-o como senha.</li>
+      <li><strong>Proteção Personalizada:</strong> Permite definir manualmente uma senha para proteger o PDF.</li>
+      <li><strong>Integração com Outlook:</strong> Cria automaticamente um rascunho de e-mail com o PDF protegido anexado.</li>
+      <li><strong>Interface Moderna:</strong> Desenvolvida com CustomTkinter para uma experiência de usuário aprimorada.</li>
+    </ul>
+  </section>
+  
+  <section id="download">
+    <h2>Download</h2>
+    <p>Para baixar o executável ou os arquivos do projeto, clique no botão abaixo:</p>
+    <a class="btn" href="https://drive.google.com/file/d/1FgWPq7p1ShX5k9WXnTP-oZbHzE05kWyS/view?usp=sharing" target="_blank">Download PDF Protect Tool</a>
+  </section>
+  
+  <section id="instalacao">
+    <h2>Instalação</h2>
+    <p><strong>Requisitos:</strong> Python 3.7+ e as seguintes dependências:</p>
+    <ul>
+      <li>customtkinter</li>
+      <li>tkinter (incluso na maioria das instalações do Python)</li>
+      <li>PyPDF2</li>
+      <li>pikepdf</li>
+      <li>pywin32 (para integração com o Outlook)</li>
+      <li>pandas (para funcionalidades de log, se necessário)</li>
+      <li>pyfiglet (opcional, para exibição de um banner)</li>
+    </ul>
+    <p>Para instalar as dependências, execute o seguinte comando no terminal:</p>
+    <pre><code>pip install customtkinter PyPDF2 pikepdf pywin32 pandas pyfiglet</code></pre>
+  </section>
+  
+  <section id="uso">
+    <h2>Gerando um Executável e Uso</h2>
+    <p>Para gerar um único executável (sem a janela de console) utilizando o PyInstaller, execute:</p>
+    <pre><code>pyinstaller --onefile --noconsole --add-data "gui;gui" main.py</code></pre>
+    <p>O executável será criado na pasta <code>dist</code>. Ao executá-lo, a aplicação realizará as seguintes etapas:</p>
+    <ul>
+      <li><strong>Seleção do PDF:</strong> O usuário escolhe o arquivo PDF através de uma janela de diálogo.</li>
+      <li><strong>Processamento do Arquivo:</strong> O sistema extrai o CPF, protege o PDF com uma senha (automática ou personalizada) e gera um rascunho de e-mail no Outlook com o PDF protegido anexado.</li>
+      <li><strong>Feedback Visual:</strong> Mensagens e indicadores informam o status do processamento.</li>
+    </ul>
+  </section>
+  
+  <section id="novas-ferramentas">
+    <h2>Novas Ferramentas</h2>
+    <p>Adicione novas ferramentas abaixo:</p>
+    <input type="text" id="novaFerramentaInput" placeholder="Digite o nome da ferramenta" />
+    <button id="adicionarFerramentaBtn" class="btn">Adicionar Ferramenta</button>
+    <ul id="listaFerramentas"></ul>
+  </section>
+  
+  <section id="contato">
+    <h2>Contato</h2>
+    <p>Para dúvidas, sugestões ou suporte, entre em contato através do GitHub ou LinkedIn:</p>
+    <p>
+      <a href="https://github.com/advmarinho" target="_blank">GitHub</a> | 
+      <a href="https://www.linkedin.com/in/anderson-marinho-ads" target="_blank">LinkedIn</a>
+    </p>
+  </section>
+  
+  <footer>
+    <p>&copy; 2024 Anderson Marinho. Todos os direitos reservados.</p>
+    <p>Visitas: <span id="visitCount">0</span></p>
+  </footer>
+  
+  <script>
+    // Contador de visitas usando localStorage
+    const visitCountElem = document.getElementById('visitCount');
+    let visits = localStorage.getItem('visits') || 0;
+    visits++;
+    localStorage.setItem('visits', visits);
+    visitCountElem.textContent = visits;
+    
+    // Funcionalidade para adicionar novas ferramentas
+    const adicionarFerramentaBtn = document.getElementById('adicionarFerramentaBtn');
+    const novaFerramentaInput = document.getElementById('novaFerramentaInput');
+    const listaFerramentas = document.getElementById('listaFerramentas');
+    
+    adicionarFerramentaBtn.addEventListener('click', function() {
+      const ferramenta = novaFerramentaInput.value.trim();
+      if (ferramenta !== "") {
+        const li = document.createElement('li');
+        li.textContent = ferramenta;
+        listaFerramentas.appendChild(li);
+        novaFerramentaInput.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
