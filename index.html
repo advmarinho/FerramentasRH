@@ -92,6 +92,16 @@
     .btn:hover {
       background-color: #003d66;
     }
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+      text-align: left;
+    }
+    code {
+      font-family: "Courier New", Courier, monospace;
+    }
     input[type="text"] {
       padding: 10px;
       margin: 10px 0;
@@ -114,6 +124,10 @@
     footer a:hover {
       text-decoration: underline;
     }
+    /* Seção de novas ferramentas escondida */
+    #novas-ferramentas {
+      display: none;
+    }
     @media (min-width: 768px) {
       section {
         margin: 40px auto;
@@ -128,7 +142,6 @@
     <a href="#download">Download</a>
     <a href="#instalacao">Instalação</a>
     <a href="#uso">Uso</a>
-    <a href="#novas-ferramentas">Novas Ferramentas</a>
     <a href="#contato">Contato</a>
   </nav>
   
@@ -187,6 +200,7 @@
     </ul>
   </section>
   
+  <!-- Seção de novas ferramentas escondida -->
   <section id="novas-ferramentas">
     <h2>Novas Ferramentas</h2>
     <p>Adicione novas ferramentas abaixo:</p>
@@ -207,6 +221,7 @@
   <footer>
     <p>&copy; 2024 Anderson Marinho. Todos os direitos reservados.</p>
     <p>Visitas: <span id="visitCount">0</span></p>
+    <p style="cursor:pointer; font-size: 0.8em;" id="toggleFerramentas">Easter Egg: Clique aqui para revelar ferramentas secretas</p>
   </footer>
   
   <script>
@@ -229,6 +244,17 @@
         li.textContent = ferramenta;
         listaFerramentas.appendChild(li);
         novaFerramentaInput.value = "";
+      }
+    });
+    
+    // Easter Egg: Toggle de exibição da seção de novas ferramentas
+    const toggleFerramentas = document.getElementById('toggleFerramentas');
+    const novasFerramentasSection = document.getElementById('novas-ferramentas');
+    toggleFerramentas.addEventListener('click', function() {
+      if (novasFerramentasSection.style.display === 'none' || novasFerramentasSection.style.display === '') {
+        novasFerramentasSection.style.display = 'block';
+      } else {
+        novasFerramentasSection.style.display = 'none';
       }
     });
   </script>
