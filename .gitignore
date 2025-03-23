@@ -1,0 +1,16 @@
+# Ignorar diretórios de build e distribuição
+build/
+dist/
+*.spec
+
+# Ignorar arquivos compilados do Python
+__pycache__/
+*.pyc
+# Diretórios de build e distribuição
+build/
+dist/
+*.spec
+
+# Arquivos e diretórios compilados do Python
+__pycache__/
+*.pyc
