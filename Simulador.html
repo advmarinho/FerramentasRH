@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de IRRF – Tabelas 2024/2025</title>
+  <style>
+    :root {
+      --primary: #ff6f00;
+      --primary-dark: #e65e00;
+      --surface: #ffffff;
+      --surface-alt: #fefcf8;
+      --border: #c9c9c9;
+      --font: #333;
+      --heading: #002347;
+      --section-bg: #f4f9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 24px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      background: var(--surface);
+      color: var(--font);
+    }
+    h1 { color: var(--heading); margin-bottom: 12px; }
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 20px;
+      padding: 12px 20px 16px;
+      background: var(--section-bg);
+    }
+    legend { padding: 0 8px; font-weight: 600; }
+    label { display: block; margin-bottom: 8px; }
+    input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 4px rgba(255,111,0,.45); }
+    .row { display:flex; gap:16px; flex-wrap:wrap; }
+    .col { flex:1 1 220px; }
+    button { background:var(--primary); color:#fff; border:none; border-radius:4px; padding:10px 18px; font-size:14px; margin-top:10px; cursor:pointer; transition:background .25s; }
+    button:hover { background:var(--primary-dark); }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th,td { border:1px solid var(--border); padding:6px 4px; text-align:right; }
+    th { background:var(--primary); color:#fff; text-align:center; }
+    .result-box { padding:12px; border-radius:6px; background:var(--surface-alt); border:1px solid var(--border); margin-top:20px; }
+    ul { margin:6px 0 12px 20px; }
+    ul li { margin-bottom:4px; }
+    @media print { button { display:none!important; } }
+  </style>
+</head>
+<body>
+  <h1>Simulador de IRRF – Tabelas válidas em 2024/2025</h1>
+
+  <!-- Competência -->
+  <fieldset>
+    <legend>Competência (pagamento)</legend>
+    <div class="row">
+      <div class="col">
+        <label>Mês/ano
+          <input type="date" id="competencia" value="${new Date().toISOString().substring(0,10)}">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 1. Rendimentos -->
+  <fieldset>
+    <legend>1. Rendimentos tributáveis</legend>
+    <div class="row">
+      <div class="col">
+        <label>Rendimentos tributáveis (R$)
+          <input type="text" id="rendimentos" placeholder="Ex.: 4.664.68">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 2. Deduções -->
+  <fieldset>
+    <legend>2. Deduções</legend>
+    <div class="row">
+      <div class="col">
+        <label>2.1 INSS oficial (R$)
+          <input type="text" id="inss" placeholder="Ex.: 951,62">
+        </label>
+      </div>
+      <div class="col">
+        <label>2.2 Dependentes (quantidade)
+          <input type="number" id="dependentes" min="0" step="1" placeholder="0">
+        </label>
+      </div>
+      <div class="col">
+        <label>2.3 Pensão alimentícia (R$)
+          <input type="text" id="pensao" placeholder="0,00">
+        </label>
+      </div>
+      <div class="col">
+        <label>2.4 Outras deduções (R$)
+          <input type="text" id="outras" placeholder="0,00">
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <button id="calcular">Calcular IRRF</button>
+
+  <div id="resultado" class="result-box" style="display:none"></div>
+
+  <script>
+    // ===== Tabelas por vigência =====
+    const TAB_ATE_ABR25 = [
+      {lim:2259.20, ali:0.0 , ded:0},
+      {lim:2826.65, ali:7.5 , ded:169.44},
+      {lim:3751.05, ali:15.0, ded:381.44},
+      {lim:4664.68, ali:22.5, ded:662.77},
+      {lim:Infinity,ali:27.5, ded:896.00}
+    ];
+    const TAB_DESDE_MAI25 = [
+      {lim:2428.80, ali:0.0 , ded:0},
+      {lim:2826.65, ali:7.5 , ded:182.16},
+      {lim:3751.05, ali:15.0, ded:394.16},
+      {lim:4664.68, ali:22.5, ded:675.49},
+      {lim:Infinity,ali:27.5, ded:908.73}
+    ];
+    const DEP_VALOR = 189.59;
+
+    // === Helpers ===
+    const parseNum = s => s ? parseFloat(s.replace(/\./g,'').replace(/,/g,'.'))||0 : 0;
+    const money = n => n.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function getTabela(dt){
+      // dt é Date
+      const LIMITE = new Date('2025-05-01'); // 01/05/2025 00:00
+      return dt < LIMITE ? TAB_ATE_ABR25 : TAB_DESDE_MAI25;
+    }
+
+    function calcularIR(){
+      const dtComp = new Date(document.getElementById('competencia').value);
+      if(isNaN(dtComp)) { alert('Informe a competência.'); return; }
+
+      const rend = parseNum(document.getElementById('rendimentos').value);
+      if(rend<=0){ alert('Informe os rendimentos tributáveis.'); return; }
+
+      const inss   = parseNum(document.getElementById('inss').value);
+      const depQ   = parseInt(document.getElementById('dependentes').value)||0;
+      const pensao = parseNum(document.getElementById('pensao').value);
+      const outras = parseNum(document.getElementById('outras').value);
+
+      const dedDep = depQ * DEP_VALOR;
+      const totalD = inss + dedDep + pensao + outras;
+      const base   = rend - totalD;
+
+      const TABELA = getTabela(dtComp);
+      const faixaAtual = TABELA.find(f => base <= f.lim);
+      const irrf  = Math.max(0, (base * (faixaAtual.ali/100)) - faixaAtual.ded);
+      const aliqEf = (irrf / rend) * 100;
+
+      // demonstrativo detalhado
+      let restante = base, inicio = 0, linhas = [], impostoAc=0;
+      for(const f of TABELA){
+        const largura = Math.min(restante, f.lim - inicio);
+        if(largura>0){
+          const impFaixa = largura * (f.ali/100);
+          linhas.push({faixa:`${money(inicio)} – ${money(f.lim)}`, ali:f.ali, val:impFaixa});
+          impostoAc += impFaixa;
+          restante -= largura;
+        }
+        inicio = f.lim;
+      }
+
+      const res = document.getElementById('resultado');
+      res.style.display='block';
+      res.innerHTML = `
+        <p><strong>Competência:</strong> ${dtComp.toLocaleDateString('pt-BR',{month:'2-digit', year:'numeric'})}</p>
+        <p><strong>1. Rendimentos tributáveis:</strong> R$ ${money(rend)}</p>
+        <p><strong>2. Deduções:</strong></p>
+        <ul>
+          <li>2.1 INSS: R$ ${money(inss)}</li>
+          <li>2.2 Dependentes (${depQ} × R$ ${money(DEP_VALOR)}): R$ ${money(dedDep)}</li>
+          <li>2.3 Pensão alimentícia: R$ ${money(pensao)}</li>
+          <li>2.4 Outras deduções: R$ ${money(outras)}</li>
+          <li><strong>2.5 Total de deduções:</strong> R$ ${money(totalD)}</li>
+        </ul>
+        <p><strong>3. Base de cálculo:</strong> R$ ${money(base)}</p>
+        <table>
+          <thead><tr><th>Faixa da Base</th><th>Alíquota</th><th>Imposto (R$)</th></tr></thead>
+          <tbody>
+            ${linhas.map(l=>`<tr><td style='text-align:left'>${l.faixa}</td><td>${l.ali}%</td><td>${money(l.val)}</td></tr>`).join('')}
+            <tr><td colspan='2'><strong>Total</strong></td><td><strong>${money(impostoAc)}</strong></td></tr>
+          </tbody>
+        </table>
+        <p><strong>4. IRRF devido:</strong> R$ ${money(irrf)}</p>
+        <p><strong>5. Alíquota efetiva:</strong> ${aliqEf.toFixed(2)}%</p>`;
+    }
+
+    document.getElementById('calcular').addEventListener('click', calcularIR);
+  </script>
+</body>
+</html>
