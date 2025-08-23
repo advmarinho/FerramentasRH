@@ -1,0 +1,88 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from ipywidgets import (IntSlider, FloatSlider, Dropdown, Text, Checkbox,
+                        Button, HBox, VBox, HTML, Output)
+
+# --- UI widgets ---
+w_escolhas     = Text(value="001, 2, Ana Souza", description="Grupo:", layout={'width':'500px'})
+w_lookback     = IntSlider(value=24, min=3, max=60, step=1, description="Meses:", continuous_update=False)
+w_limiar_pct   = FloatSlider(value=0.30, min=0.0, max=1.0, step=0.01, readout_format='.2f',
+                             description="Limiar %:", continuous_update=False)
+w_limiar_abs   = FloatSlider(value=0.0, min=0.0, max=5000.0, step=50.0, readout_format='.0f',
+                             description="Limiar R$:", continuous_update=False)
+w_queda        = Checkbox(value=False, description="Considerar quedas grandes")
+w_n_alertas    = IntSlider(value=3, min=0, max=15, step=1, description="Slice alertas:", continuous_update=False)
+w_criterio     = Dropdown(options=[("Top %", "pct"), ("Primeiros (ordem)", "primeiros")],
+                          value="pct", description="Critério:")
+w_run          = Button(description="Rodar auditoria", button_style="primary")
+w_status       = HTML("")
+w_out          = Output()
+
+def _run_auditoria(_=None):
+    w_out.clear_output()
+    w_status.value = "<i>Processando…</i>"
+
+    try:
+        # 1) rodar auditoria com parâmetros da UI
+        base24_ui, pontos_alerta_ui, alvos_ui = auditar_grupo(
+            df,
+            escolhas=w_escolhas.value,
+            meses_lookback=w_lookback.value,
+            limiar_pct=w_limiar_pct.value,
+            limiar_abs=w_limiar_abs.value,
+            considerar_queda=w_queda.value
+        )
+
+        # 2) feedback rápido
+        n_base   = len(base24_ui)
+        n_pontos = pontos_alerta_ui.shape[0]
+        n_alvos  = alvos_ui.shape[0]
+        w_status.value = (f"<b>OK!</b> base24={n_base} linhas | "
+                          f"pontos_alerta={n_pontos} | alvos_auditoria={n_alvos}")
+
+        # 3) plot com slice
+        with w_out:
+            plot_evolucao_com_slice_alertas(
+                base24=base24_ui,
+                n_alertas_plot=w_n_alertas.value,
+                criterio=w_criterio.value,
+                titulo=f"Evolução (últimos {w_lookback.value}m) — slice {w_n_alertas.value} ({w_criterio.value})"
+            )
+
+            # 4) barras com alvos
+            if not alvos_ui.empty:
+                fig, ax = plt.subplots(figsize=(10,6))
+                labels = alvos_ui['nome'].fillna(alvos_ui['colaborador_id'])
+                vals   = alvos_ui['maior_var_pct'] * 100
+                bars = ax.bar(labels, vals)
+                ax.set_title("Alvos de auditoria (maior variação %)")
+                ax.set_ylabel("Maior variação (%)")
+                for b, v in zip(bars, vals):
+                    ax.text(b.get_x()+b.get_width()/2, b.get_height(), f"{v:.1f}%", ha='center', va='bottom')
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
+                plt.show()
+            else:
+                print("Nenhum alvo de auditoria com os critérios atuais.")
+
+            # 5) mostrar DFs resumidos (sem print)
+            display(base24_ui.head(10))
+            display(pontos_alerta_ui.head(10))
+            display(alvos_ui)
+
+    except Exception as e:
+        w_status.value = f"<span style='color:#c00'><b>Erro:</b> {e}</span>"
+
+w_run.on_click(_run_auditoria)
+
+ui = VBox([
+    HTML("<h4>Auditoria Salarial — últimos 24m</h4>"),
+    HBox([w_escolhas]),
+    HBox([w_lookback, w_limiar_pct, w_limiar_abs, w_queda]),
+    HBox([w_n_alertas, w_criterio, w_run]),
+    w_status,
+    w_out
+])
+
+ui
