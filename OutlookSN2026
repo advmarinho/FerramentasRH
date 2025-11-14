@@ -1,0 +1,244 @@
+Option Explicit
+
+' Caminho da planilha Excel
+Private Const CAMINHO_EXCEL As String = _
+    "C:\Users\99andsouza\Sonova\BR-SO-HR-RecursosHumanos - General\ACESSO ADP\_email.xlsx"
+
+' Caminho onde serão salvos os PDFs (PRECISA terminar com "\")
+Private Const CAMINHO_PASTA_PDF As String = _
+    "C:\Users\99andsouza\Sonova\BR-SO-HR-RecursosHumanos - General\ACESSO ADP\_email\"
+
+
+' ============================================================
+' MACRO PRINCIPAL – PROCESSA E-MAILS SELECIONADOS
+' ============================================================
+Public Sub ProcessEmailsPagamentos()
+
+    On Error GoTo TrataErro
+
+    Dim sel As Selection
+    Dim mail As Outlook.MailItem
+    Dim obj As Object
+
+    Dim xlApp As Object
+    Dim xlWb As Object
+    Dim xlWs As Object
+    Dim lastRow As Long
+    Dim excelCriado As Boolean
+
+    ' Verifica seleção
+    Set sel = Application.ActiveExplorer.Selection
+    If sel Is Nothing Or sel.Count = 0 Then
+        MsgBox "Selecione pelo menos um e-mail.", vbInformation
+        Exit Sub
+    End If
+
+    ' Excel
+    On Error Resume Next
+    Set xlApp = GetObject(, "Excel.Application")
+    On Error GoTo TrataErro
+    If xlApp Is Nothing Then
+        Set xlApp = CreateObject("Excel.Application")
+        excelCriado = True
+    End If
+
+    xlApp.Visible = True
+    xlApp.DisplayAlerts = False
+
+    Set xlWb = xlApp.Workbooks.Open(CAMINHO_EXCEL)
+    Set xlWs = xlWb.Worksheets(1)
+
+    lastRow = xlWs.Cells(xlWs.Rows.Count, "A").End(-4162).Row
+    If lastRow < 1 Then lastRow = 1
+
+    ' PROCESSA E-MAIL A E-MAIL
+    For Each obj In sel
+        If TypeOf obj Is Outlook.MailItem Then
+            Set mail = obj
+            lastRow = lastRow + 1
+
+            RegistrarEmail mail, xlWs, lastRow
+            SalvarPDF mail
+
+            DoEvents
+        End If
+    Next obj
+
+Saida:
+    On Error Resume Next
+    xlWb.Save
+    xlWb.Close False
+    If excelCriado Then xlApp.Quit
+
+    MsgBox "Processamento concluído!", vbInformation
+    Exit Sub
+
+TrataErro:
+    MsgBox "Erro " & Err.Number & ": " & Err.Description, vbCritical
+    Resume Saida
+End Sub
+
+
+' ============================================================
+' REGISTRA OS DADOS DO E-MAIL NO EXCEL
+' ============================================================
+Private Sub RegistrarEmail(mail As Outlook.MailItem, xlWs As Object, linha As Long)
+
+    Dim remetenteEmail As String
+    Dim remetenteNome As String
+    Dim dataEnvio As Variant
+    Dim assunto As String
+
+    Dim valoresTexto As String
+    Dim valorTotal As Double
+    Dim temValor As String
+    Dim IDcompleto As String
+
+    remetenteEmail = GetSmtpAddress(mail)
+    remetenteNome = mail.SenderName
+    dataEnvio = mail.SentOn
+    assunto = mail.Subject
+
+    ' ENTRYID COMPLETO – LIMPO E SEGURO
+    IDcompleto = LimparNomeArquivo(mail.EntryID)
+
+    valoresTexto = ExtrairValoresReais(mail.Body & vbCrLf & assunto, valorTotal)
+    temValor = IIf(valoresTexto <> "", "Sim", "Não")
+
+    xlWs.Cells(linha, 1).Value = dataEnvio
+    xlWs.Cells(linha, 2).Value = remetenteNome
+    xlWs.Cells(linha, 3).Value = remetenteEmail
+    xlWs.Cells(linha, 4).Value = assunto
+    xlWs.Cells(linha, 5).Value = temValor
+    xlWs.Cells(linha, 6).Value = valoresTexto
+    xlWs.Cells(linha, 7).Value = valorTotal
+    xlWs.Cells(linha, 8).Value = IDcompleto   ' CHAVE ÚNICA COMPLETA
+
+End Sub
+
+
+' ============================================================
+' SALVA APENAS PDFs, SE EXISTIREM
+' ============================================================
+Private Sub SalvarPDF(mail As Outlook.MailItem)
+
+    Dim att As attachment
+    Dim IDcompleto As String
+    Dim assuntoLimpo As String
+    Dim nomeArquivo As String
+
+    ' Garante que a pasta exista
+    If Dir(CAMINHO_PASTA_PDF, vbDirectory) = "" Then
+        MsgBox "Pasta inexistente: " & CAMINHO_PASTA_PDF, vbCritical
+        Exit Sub
+    End If
+
+    IDcompleto = LimparNomeArquivo(mail.EntryID)
+    assuntoLimpo = LimparNomeArquivo(mail.Subject)
+
+    For Each att In mail.Attachments
+
+        If LCase(Right(att.FileName, 4)) = ".pdf" Then
+
+            nomeArquivo = CAMINHO_PASTA_PDF & _
+                          "ID_" & IDcompleto & "_" & assuntoLimpo & ".pdf"
+
+            On Error Resume Next
+            att.SaveAsFile nomeArquivo
+            On Error GoTo 0
+
+        End If
+    Next att
+
+End Sub
+
+
+' ============================================================
+' LIMPA NOME DE ARQUIVO (SEM REDUZIR O ENTRYID)
+' ============================================================
+Private Function LimparNomeArquivo(s As String) As String
+
+    Dim invalid As String: invalid = "/\:*?""<>|"
+    Dim i As Long
+
+    ' Remove caracteres clássicos inválidos
+    For i = 1 To Len(invalid)
+        s = Replace(s, Mid(invalid, i, 1), "_")
+    Next i
+
+    ' Remove caracteres invisíveis que quebram SaveAsFile
+    s = Replace(s, Chr(160), "_")      ' NBSP
+    s = Replace(s, Chr(9), "_")        ' TAB
+    s = Replace(s, Chr(10), "_")       ' LF
+    s = Replace(s, Chr(13), "_")       ' CR
+    s = Replace(s, ChrW(8203), "_")    ' Zero-width space
+    s = Replace(s, ChrW(65279), "_")   ' BOM
+
+    ' Remove espaços nas pontas
+    s = Trim$(s)
+
+    LimparNomeArquivo = s
+End Function
+
+
+' ============================================================
+' EXTRAI VALORES EM FORMATO R$
+' ============================================================
+Private Function ExtrairValoresReais(texto As String, ByRef soma As Double) As String
+
+    Dim regex As Object, matches As Object, m As Object
+    Dim lista As String
+    Dim strVal As String, numVal As Double
+
+    soma = 0
+    lista = ""
+
+    Set regex = CreateObject("VBScript.RegExp")
+    regex.Global = True
+    regex.IgnoreCase = True
+    regex.Pattern = "([0-9]{1,3}(\.[0-9]{3})*|[0-9]+),[0-9]{2}"
+
+    If Not regex.Test(texto) Then Exit Function
+
+    Set matches = regex.Execute(texto)
+
+    For Each m In matches
+
+        strVal = m.Value
+
+        If lista = "" Then
+            lista = strVal
+        Else
+            lista = lista & "; " & strVal
+        End If
+
+        strVal = Replace(strVal, ".", "")
+        strVal = Replace(strVal, ",", ".")
+
+        If IsNumeric(strVal) Then
+            numVal = CDbl(strVal)
+            soma = soma + numVal
+        End If
+    Next m
+
+    ExtrairValoresReais = lista
+
+End Function
+
+
+' ============================================================
+' PEGA O SMTP DO REMETENTE
+' ============================================================
+Private Function GetSmtpAddress(mail As Outlook.MailItem) As String
+
+    On Error Resume Next
+
+    If mail.SenderEmailType = "EX" Then
+        GetSmtpAddress = mail.Sender.GetExchangeUser().PrimarySmtpAddress
+    Else
+        GetSmtpAddress = mail.SenderEmailAddress
+    End If
+
+    On Error GoTo 0
+
+End Function
