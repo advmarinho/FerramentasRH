@@ -38,7 +38,7 @@ COL_EMAIL = "Email Alternativo"
 SUBPASTA_PROTEGIDOS = "protegidos"
 LOG_NAME = "log_envio_informes.csv"
 
-RH_CHAMADO_URL = "https://forms.gle/dh8ZPsHohwyuKV6J8"
+RH_CHAMADO_URL = "-----"
 
 SUBJECT_TEMPLATE = "Informe de Rendimentos {ano_base} - Matrícula {matricula}"
 BODY_TEMPLATE = (
